@@ -1,0 +1,27 @@
+#include<iostream>
+using namespace std;
+int main()
+{
+	int p, g, r, s;
+	cout << "先用上一个求奇素数程序找到素数P的一个原根g,如模19原根2" << endl;
+	cin >> p >> g; s = g;
+	int* a = new int[p];
+	g = 1;
+	for (int i = 0; i < p - 1; i++)
+	{
+		
+		r = g % p;
+		cout << i << " " << r << endl;
+		a[r] = i;
+		g = g * s;
+
+	}
+	for (int i = 0; i < p ; i++)
+	{
+		if (i == 0)
+			cout << i << " null" << endl;
+		else
+			cout << i << " " << a[i] << endl;
+
+	}
+}

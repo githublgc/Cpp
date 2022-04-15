@@ -1,0 +1,41 @@
+#include <iostream>
+
+using namespace std;
+
+int Mult(int x, int y)  //求最小能为余1的公倍数
+{
+    int a = 0;
+    int num = y;
+    while (0 == a)
+    {
+        if ((num - 1) % x == 0)
+            a = 1;
+        else
+            num += y;
+    }
+    return num;
+}
+
+int Remain(int x, int y, int z, int xr, int yr, int zr)  //分别三个数及其余数
+{
+    int x1 = y * z;  
+    int y1 = x * z;
+    int z1 = x * y;
+    x1 = Mult(x, x1);  
+    y1 = Mult(y, y1);
+    z1 = Mult(z, z1);
+
+    int sum = x1 * xr + y1 * yr + z1 * zr;  
+    sum = sum % (x * y * z);  
+    return sum;
+}
+
+int main()
+{
+    cout << "先输入3个除数，再给定对应顺序余数" << endl;
+    int a, b, c, d, e, f;
+    cin >> a >> b >> c >> d >> e >> f;
+    
+    cout << Remain(a, b, c, d, e, f) << endl;
+    return 0;
+}
