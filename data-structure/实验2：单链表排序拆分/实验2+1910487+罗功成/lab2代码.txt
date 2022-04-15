@@ -1,0 +1,197 @@
+#include<cstdio>
+#include<cstdlib>
+#include<iostream>
+using namespace std;
+
+struct node {
+	int data;
+	node* next;
+};
+
+//创建链表 
+node* create(int array[]) {
+	node* p, * head, * pre;//pre为前驱结点 
+	head = new node;
+	head->next = NULL;
+	pre = head;
+	int n;
+	cin >> n;//创建可变大小的链表，但输入时需要注意这里还有一次输入，应与下面保持一致！
+	for (int i = 0; i < n; ++i) {
+		p = new node;
+		p->data = array[i];
+		p->next = NULL;
+		pre->next = p;
+		pre = p;
+	}
+	
+	return head;
+}
+
+
+// 插入
+// 将x插入到以head为头节点的pos位置上 
+void insert(node* head, int pos, int x) {
+	node* p = head;
+	for (int i = 0; i < pos - 1; i++) {//比如要插到第三个位置，从0开始的话就是下标为2，前一个下标为1 
+		p = p->next;// 1 < 3-1 
+	}
+	node* q = new node;
+	q->data = x;
+	q->next = p->next;
+	p->next = q;
+}
+
+//删除 ，重复值删除，保证只剩下第一次出现的
+//删除所有值为x的数 
+void del(node* head, int x) {
+	node* p = head->next;
+	node* pre = head;
+	int count[1000];
+	for (int i = 0; i < 1000; i++)
+	{
+		count[i] = 0;
+	}
+	while (p != NULL) {
+		if  (p->data == x) {
+			count[x]++;
+			int m = x;
+			if (count[x] == 1)
+			{
+				pre = p;
+				p = p->next;//第一个不删
+			}
+			if (count[x] > 1)
+			{
+				pre->next = p->next;
+				delete(p);
+				p = pre->next;//到下一个开始再删
+			}	
+		}
+		else {	
+			pre = p;
+			p = p->next;
+		}
+	}
+}
+
+
+
+//查找 
+//查找链表中有几个x，返回count值 
+int search(node* head, int x) {
+	int count = 0;
+	node* p = head->next;
+	while (p != NULL) {
+		if (p->data == x) {
+			count++;
+		}
+		p = p->next;
+	}
+	return count;
+}
+
+//排序
+//冒泡排序
+void sort(node* head) {
+	for (node* temp = head->next; temp->next != NULL; temp = temp->next) {
+		for (node* p = head->next; p->next != NULL; p = p->next) {
+			if (p->data > p->next->data) {
+				int t = p->data;
+				p->data = p->next->data;
+				p->next->data = t;
+			}
+		}
+	}
+}
+
+int main() {
+	int n;
+	cout << "请输入结点个数" << endl;
+	cin >> n;
+	int* a = new int[n];
+	int* b = new int[n];
+	int* c = new int[n];
+
+
+	for (int i = 0; i < n; i++)
+	{
+		cin >> a[i];
+	}
+	cout << "注意，这里在定义L还有2个数目确认，需要和第一次输入值n一致！" << endl;
+	node* L = create(a);//1.生成了初始链表A,以及后面的B,C链表
+	node* L1 = create(a);
+	int count9 = 0;
+	//2.对链表先去重
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = i + 1; j < n; j++)//从i后开始遍历，遇到和前面相同的元素直接删除。
+		{
+			if (a[j] == a[i])
+			{
+				del(L, a[j]);
+				del(L1, a[j]);
+
+				count9++;
+			}
+		}
+
+	}//完成了（1）
+
+	//(2)再排序
+	cout << "删除重复节点链表A为：";
+	L1 = L1->next;	//头节点L是没有数据域的，下个结点才有 
+	
+	
+	while (L1 != NULL) {
+		
+		printf("%d ", L1->data);
+		L1 = L1->next;
+	}
+
+	
+	
+
+	sort(L);
+	
+	L = L->next;//头节点的下一个节点才有值
+
+	//拆分链表：
+	int count1 = 0; int count2 = 0;
+	for (int i = 0; i <(n - count9); i++)
+	{
+		if ((L->data) % 2 == 1)
+		{
+			b[count1] = L->data;
+			
+			L = L->next;
+
+			count1++;
+		}
+		else
+		{
+			c[count2] = L->data;
+			
+			L = L->next;
+			count2++;
+		}
+	}
+	
+	
+	//遍历打印 
+	//头节点L是没有数据域的，下个结点才有 
+	/*cout << "删除重复节点链表A为：";
+	for (int i = 0; i < (count1 + count2); i++)
+		cout << a[i] << ' ';*/
+	cout << endl;
+	cout << "链表B为升序奇数链表" << endl;
+	for (int i = 0; i < count1; i++)
+		cout << b[i] << ' ';
+	cout << endl;
+
+	cout << "链表C为升序偶数链表" << endl;
+	for (int i = 0; i < count2; i++)
+		cout << c[i] << ' ';
+
+	return 0;
+}

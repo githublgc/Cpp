@@ -1,0 +1,147 @@
+#include <iostream>
+using namespace std;
+
+typedef struct Qnode {
+    int data;
+    struct Qnode* next;
+};//创建链表
+
+typedef struct LQueue {
+    Qnode* front;
+    Qnode* rear;
+};//生成队头队尾指针
+
+void initQueue(LQueue* q) {
+    q->front = q->rear = (Qnode*)malloc(sizeof(Qnode));
+    q->front->next = NULL;
+}//初始化，指向一个动态的节点
+
+int empty(LQueue* t) {
+    return t->front->next == t->rear;
+}//判断当前队列是否为空
+
+void push(LQueue* t, int x) {
+    Qnode* s = (Qnode*)malloc(sizeof(Qnode));//S指向生成的Qnode
+    s->data = x;//输入值传给s的data
+    s->next = NULL;//把下一个置空
+    t->rear->next = s;//队尾指针的next指向s所指节点
+    t->rear = s;//队尾指针指向S
+}//push，将节点插入队列，一次一个
+
+void pop(LQueue* t) {
+    /*if (empty(t)) {
+        cout << "LQueue is empty,can't pop.\n";
+        return;
+    }*/
+    Qnode* q = t->front->next;
+    t->front->next = q->next;
+    free(q);
+    if (t->rear == NULL)
+        t->rear = t->front;
+}//出队列，一次一个，FIFO
+
+int getFront(LQueue* t) {
+    return t->front->next->data;
+}//获取队头值
+
+int getRear(LQueue* t) {
+    return t->rear->data;
+}//获取队尾值
+
+int getSize(LQueue* t) {
+    Qnode* q = t->front->next;
+    int k = 0;
+    while (q) {
+        k++;
+        q = q->next;
+    }
+    return k;
+}//获取队列长度
+
+void printQueue(LQueue* t) {
+    Qnode* q = t->front->next;
+    while (q) {
+        cout << q->data << " ";
+        q = q->next;
+    }
+    cout << "\n";
+}//遍历打印所有值
+int main() {
+    LQueue L;
+    initQueue(&L);//调用队列初始化
+    
+    int count = 0;
+    
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++)//可进行指定操作次数的a,b,c
+    {
+        char s;
+        cin >> s;
+        if (s == 'a')
+        {
+            int x1;
+            cin >> x1;
+            push(&L, x1);
+            printQueue(&L);
+            push(&L1, x1);
+            count++;
+        }
+        
+        if (s == 'b')
+        {
+            int x2;
+            cin >> x2;//需要最后几个乘的个数
+            int y1 = getSize(&L);//队列长度
+	int z[100];//注意，每次使用完后可以清空z!否则全局变量的话一直存在里面了！
+            for (int i = 0; i < y1 ; i++)//把前面的几个都出队列，然后剩下的再进行相乘的操作。
+
+            {
+                z[i] = getFront(&L);//将队头元素依次保存
+                pop(&L);//逐个出队列
+            }
+            int temp = 1;
+            for (int j1 = y1-x2; j1 <y1; j1++)
+            {
+               
+                temp = temp * z[j1];
+            }
+            cout << temp << endl;
+            temp=1;
+            for (int i = 0; i < count; i++)
+            {
+                int m=z[i];
+                push(&L, m);//弹出结束后，还要把原来的值重新放回队列去
+            }
+         
+        }
+        if (s == 'c')
+        {
+            int x3;
+            cin >> x3;
+	int z2[100];
+            for (int i = 0; i < count; i++)//把前面的几个都出队列，然后剩下的再进行比大小的操作。
+
+            {
+                z2[i] = getFront(&L1);//将队头元素依次保存
+                pop(&L1);//逐个出队列
+            }
+            int max = z2[count - x3];
+            for (int i = count - x3; i < count; i++)
+            {
+                 
+                if (z2[i] > max)
+                    max = z2[i];
+            }
+
+            cout << max << endl;
+
+            for (int i = 0; i < count; i++)
+            {
+                push(&L, z2[i]);//弹出结束后，还要把原来的值重新放回队列去
+            }
+        }
+    }
+
+    return 0;
+}

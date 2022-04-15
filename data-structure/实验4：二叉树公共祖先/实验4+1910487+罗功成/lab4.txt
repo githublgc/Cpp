@@ -1,0 +1,156 @@
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<stack>
+using namespace std;
+
+//树节点结构
+struct BinaryTreeNode
+{
+	BinaryTreeNode* left;
+	BinaryTreeNode* right;
+	int value;
+};
+
+//存储路径的数组
+vector<int> path(10, 0);//用0表示为空
+
+//创建二叉树
+void createTree(BinaryTreeNode*& root)
+{
+	int val;
+	cin >> val;
+	if (val != 0)
+	{
+		root = new BinaryTreeNode;
+		root->value = val;
+		root->left = NULL;
+		root->right = NULL;
+		createTree(root->left);
+		createTree(root->right);
+	}
+	else
+		return;
+}
+//找公共祖先
+BinaryTreeNode* GetLastCommonAncestor(BinaryTreeNode* root, BinaryTreeNode* node1, BinaryTreeNode* node2)
+{
+	if (root == NULL || node1 == NULL || node2 == NULL)
+		return NULL;
+
+	if (node1 == root || node2 == root)
+		return root;
+
+	BinaryTreeNode* cur = NULL;
+
+	BinaryTreeNode* left_lca = GetLastCommonAncestor(root->left, node1, node2);
+	BinaryTreeNode* right_lca = GetLastCommonAncestor(root->right, node1, node2);
+	if (left_lca && right_lca)
+		return root;
+	if (left_lca == NULL)
+		return right_lca;
+	else
+		return left_lca;
+}
+
+struct BinaryTreeNode* searchNode(struct BinaryTreeNode*node,int x) {
+	struct BinaryTreeNode* endNode = NULL;
+	if (node == NULL) {
+		return NULL;
+	}
+	
+	if (node->value == x) {
+		endNode = node;
+	}
+	else {
+		
+		if (endNode == NULL) {
+			endNode = searchNode(node->left,x);
+		}
+		if (endNode == NULL) {
+			endNode = searchNode(node->right,x);
+		}
+	}
+	return endNode;
+}//搜索并返回节点的位置
+//求最大路径和
+class Solution {
+public:
+	int dfs(BinaryTreeNode* root, int& res) {//dfs函数的作用是返回从当前结点往左或者往右走的单条最大路径
+		if (root == NULL) { //如果扫到空结点，返回0（路径为0）
+			return 0;
+		}
+		int left = max(dfs(root->left, res), 0);//left表示从左孩子往左或者往右走的单条最大路径，再与0比较取较大的那个值
+		int right = max(dfs(root->right, res), 0);//right同理
+		res = max(res, root->value + left + right);//res是用来保存全局中出现的最大路径的
+				//由于题中意思是可以不从根结点出发
+				//所以题意中的结果就是当前结点的值+左孩子往左或者往右走的单条最大路径+右孩子往左或者往右走的单条最大路径
+		//要注意的是我们这边的left和right是经过处理的，与0比较过了，所以不会出现当前结点的值+左右孩子的值之后小于当前结点的情况
+		return root->value + max(left, right);//dfs的作用是返回从当前结点往左或者往右走的单条最大路径，所以要用自身+上左右孩子中大的那条路径
+
+	}
+	int maxPathSum(BinaryTreeNode* root) {
+		int res = INT_MIN;//用INT_MIN来解决树中全是负数的情况
+		dfs(root, res);
+		return res;
+	}
+};
+
+
+//递归实现输出从根节点到叶子结束的所有路径
+void printPath(BinaryTreeNode* root, int pos)
+{
+	if (root == NULL)
+		return;
+	path[pos] = root->value;
+	if (root->left == NULL && root->right == NULL)
+	{
+		auto it = path.begin();
+		auto end = find(path.begin(), path.end(), 0);
+		while (it != end)
+		{
+			cout << *it++ << " ";
+		}
+		cout << endl;
+	}
+	else
+	{
+		if (root->left != NULL)
+		{
+			printPath(root->left, pos + 1);
+		}
+		if (root->right != NULL)
+		{
+			printPath(root->right, pos + 1);
+		}
+	}
+	path[pos] = 0;
+}
+
+
+int main(void)
+{
+
+	BinaryTreeNode* root = NULL;
+	cout << "输入各节点，空值用0来表示" << endl;
+	createTree(root);
+	cout << "请输入p,q节点" << endl;
+	int p, q; cin >> p >> q;
+	BinaryTreeNode* node1 = searchNode(root,p);
+	BinaryTreeNode* node2 = searchNode(root,q);
+	BinaryTreeNode* ancestor = GetLastCommonAncestor(root, node1, node2);//实现对p,q最近祖先的查找。
+	cout << "p,q节点的祖先是："<<ancestor->value << endl;
+
+	cout << "打印祖先的各条路径" << endl;
+	printPath(ancestor, 0);
+	//遍历打印祖先所有节点路径。
+	int m;
+	Solution max;//实例化一个求最大路径
+	max.dfs(ancestor, m);
+	cout << "最大路径和为"<<m<<endl;
+
+
+
+	system("pause");
+	return 0;
+}

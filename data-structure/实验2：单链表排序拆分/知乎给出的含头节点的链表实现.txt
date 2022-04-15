@@ -1,0 +1,108 @@
+#include<cstdio>
+#include<cstdlib>
+using namespace std;
+
+struct node{
+	int data;
+	node* next;
+};
+
+//创建链表 
+node* create(int array[]){
+	node *p, *head, *pre;//pre为前驱结点 
+	head=new node;
+	head->next=NULL;
+	pre=head;
+	for(int i=0; i<5; ++i){
+		p= new node;
+		p->data=array[i];
+		p->next=NULL;
+		pre->next=p;
+		pre=p;
+	} 
+	return head;
+}
+
+
+// 插入
+// 将x插入到以head为头节点的pos位置上 
+void insert(node* head, int pos, int x){
+	node *p=head;
+	for(int i=0;i<pos-1;i++){//比如要插到第三个位置，从0开始的话就是下标为2，前一个下标为1 
+		p=p->next;// 1 < 3-1 
+	}
+	node* q=new node;
+	q->data=x;
+	q->next=p->next;
+	p->next=q;
+} 
+
+//删除 
+//删除所有值为x的数 
+void del(node* head, int x){
+	node* p= head->next;
+	node* pre=head;
+	while(p!=NULL){
+		if(p->data==x){
+			pre->next=p->next;
+			delete(p);
+			p=pre->next;
+		}else{
+			pre=p;
+			p=p->next;
+		}
+	} 
+}
+
+//查找 
+//查找链表中有几个x，返回count值 
+int search(node *head, int x){
+	int count=0;
+	node *p=head->next;
+	while(p!=NULL){
+		if(p->data==x){
+			count++;
+		}
+		p=p->next; 
+	} 
+	return count;
+} 
+
+//排序
+//冒泡排序
+void sort(node *head){
+	for(node *temp=head->next;temp->next!=NULL;temp=temp->next){
+		for(node *p=head->next;p->next!=NULL;p=p->next){
+			if(p->data > p->next->data){
+				int t=p->data;
+				p->data=p->next->data;
+				p->next->data=t;
+			}
+		}
+	}
+} 
+
+int main(){
+	int array[5]={6,3,9,1,2};
+	node* L=create(array);	//返回头节点L 
+	
+	//insert(L, 3, 8);  //插入后结果为6,3,8,9,1，2 
+	
+	//del(L, 9); //删除后结果为6,3,1,2 
+	
+	/*查找 
+	int y=9; 
+	int x=search(L, y);
+	printf("查找到%d个%d\n", x, y);
+	*/
+	
+	//sort(L);  //排序 
+	
+	//遍历打印 
+	L=L->next;	//头节点L是没有数据域的，下个结点才有 
+	while(L != NULL){
+		printf("%d ",L->data);
+		L=L->next;
+	} 
+	return 0;
+} 

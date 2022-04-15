@@ -1,0 +1,99 @@
+#include <iostream>
+using namespace std;
+
+class Node
+{
+public:
+	int num;
+	Node* next;
+	static int TotalCount;
+	Node(int n);
+	~Node();
+	
+
+};//链表节点类
+
+class List
+{
+private :
+	Node* head;
+	Node* tail;
+	int nodeCount;
+public:
+	List();
+	void Insert(int n)
+	{
+		Node* tmp = new Node(n);
+		if (head == NULL)
+		{
+			head = tail = tmp;
+			nodeCount++;
+		}
+		else
+		{
+			if (n < head->num)
+			{
+				tmp->next = head;
+				head = tmp;
+				nodeCount++;
+				return;
+			}
+			if (n > tail->num)
+			{
+				tail->next = tmp;
+				tail = tmp;
+				nodeCount++;
+				return;
+			}
+			Node* curr = head;
+			while (curr->next != NULL)
+			{
+				if ((curr->num <= n) && (curr->next->num > n))
+				{
+					tmp->next = curr->next;
+					curr->next = tmp;
+					nodeCount++;
+					return;
+				}
+				curr = curr->next;
+			}//end while
+		}//end else
+		
+	
+	}//end function
+	void Remove(int n);
+	void Find(int n);
+	void Print();
+};//链表类
+
+
+
+
+
+void main()
+{
+	List list;//在主函数中创建链表并对其操作
+	int count;
+	cout << "请输入链表的节点数量" << endl;
+	cin >> count;
+	srand(time(0));//用时间来生成随机数
+	for (int i = 1; i <= count; i++)
+	{
+		int tmp = rand() % 100;
+		list.Insert(tmp);
+	}
+	list.Print();
+	int number;
+	cout << "你想插入多少个节点" << endl;
+	cin >> number;
+	list.Insert(number);
+	list.Print();
+	cout << "你想删除多少结点" << endl;
+	cin >> number;
+	list.Remove(number);
+	list.Print();
+	cout << "你想找到多少个节点" << endl;
+	cin >> number;
+	list.Find(number);
+	list.Print();
+}
