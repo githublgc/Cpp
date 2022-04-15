@@ -1,0 +1,136 @@
+// 客户端
+//
+
+#include"define.h"
+
+#define SERVER_PORT  6666 //接收数据的端口号 
+#define SERVER_IP    "127.0.0.1" //  服务器的 IP 地址 
+#define BUFFER sizeof(packet)//设置每个分包的大小作为缓冲区窗口
+#define WINDOWSIZE 20
+SOCKET socketClient;//客户端套接字
+SOCKADDR_IN addrServer; //服务器地址
+
+
+char filename[20];
+int waitseq = 0;//等待的数据包
+int totalpacket;//数据包总数
+int seqnum = 40;//序列号个数
+int len = sizeof(SOCKADDR);
+int totalrecv = 0;
+i
+unsigned long long seqnumber = static_cast<unsigned long long>(UINT32_MAX) + 1;//序列号个数
+
+
+
+
+//初始化工作
+void init()
+{
+	//加载套接字库（必须） 
+	WORD wVersionRequested;
+	WSADATA wsaData;
+	//套接字加载时错误提示 
+	int err;
+	//版本 2.2 
+	wVersionRequested = MAKEWORD(2, 2);
+	//加载 dll 文件 Scoket 库   
+	err = WSAStartup(wVersionRequested, &wsaData);
+	if (err != 0)
+	{
+		//找不到 winsock.dll 
+		cout << "WSAStartup failed with error: " << err << endl;
+		return;
+	}
+	if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
+	{
+		cout << "Could not find a usable version of Winsock.dll" << endl;
+		WSACleanup();
+	}
+	else
+	{
+		cout << "套接字创建成功" << endl;
+	}
+	socketClient = socket(AF_INET, SOCK_DGRAM, 0);
+	addrServer.sin_addr.S_un.S_addr = inet_addr(SERVER_IP);
+	addrServer.sin_family = AF_INET;
+	addrServer.sin_port = htons(SERVER_PORT);
+
+}
+
+int main()
+{
+	
+	init();
+	std::ofstream out_result;
+	packet* pkt = new packet;
+	pkt->init_packet();
+	int stage = 0;
+						  
+	srand((unsigned)time(NULL));
+	BOOL b;
+	while (true)
+	{
+		
+		pkt->init_packet();
+		pkt->tag = 0;
+		sendto(socketClient, (char*)pkt, BUFFER, 0, (SOCKADDR*)&addrServer, sizeof(SOCKADDR));
+		while (true)
+		{
+			//等待 server 回复
+			switch (stage)
+			{
+			case 0://等待握手阶段 
+				recvfrom(socketClient, (char*)pkt, sizeof(*pkt), 0, (SOCKADDR*)&addrServer, &len);
+				totalpacket = pkt->len;
+				cout << "准备建立连接，总共有" << totalpacket << "个数据包" << endl;
+				pkt->init_packet();
+				pkt = connecthandler(200);
+				sendto(socketClient, (char*)pkt, sizeof(*pkt), 0, (SOCKADDR*)&addrServer, sizeof(SOCKADDR));
+				stage = 1;
+				break;
+			case 1:
+				recvfrom(socketClient, (char*)pkt, sizeof(*pkt), 0, (SOCKADDR*)&addrServer, &len);
+				memcpy(filename, pkt->data, pkt->len);
+				out_result.open(filename, std::ios::out | std::ios::binary);
+				cout << "文件名为：" << filename << endl;
+				if (!out_result.is_open())
+				{
+					cout << "文件打开失败！！！" << endl;
+					exit(1);
+				}
+				stage = 2;
+				break;
+				
+			case 2:
+				pkt->init_packet();
+				recvfrom(socketClient, (char*)pkt, BUFFER, 0, (SOCKADDR*)&addrServer, &len);
+				if (pkt->tag == 88)
+				{
+					cout << "文件传输成功";
+					goto success;
+
+				}
+							
+				if (pkt->seq == waitseq && totalrecv < totalpacket && !corrupt(pkt))//停等方式
+				{
+
+					b = lossInLossRatio(packetLossRatio);
+					if (b) {
+						cout << "第  " << pkt->seq << " 号数据包丢失" << endl << endl;
+						continue;
+					}
+					cout << "收到第" << pkt->seq << "号数据包" << endl << endl;
+					
+				}
+				
+				
+			}
+		} success:
+		{   out_result.close();
+		exit(0);
+		}
+	}
+	closesocket(socketClient);
+	WSACleanup();
+	return 0;
+}
