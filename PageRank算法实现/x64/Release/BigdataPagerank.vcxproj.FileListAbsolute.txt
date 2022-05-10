@@ -1,0 +1,2 @@
+C:\Users\admin\Desktop\BigdataPagerank\x64\Release\BigdataPagerank.exe
+C:\Users\admin\Desktop\pagerank\x64\Release\BigdataPagerank.exe
